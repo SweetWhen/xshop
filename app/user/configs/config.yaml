@@ -1,0 +1,22 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 1s
+  svr_name: user-svr
+data:
+  database:
+    driver: mysql
+    user: root
+    passwd: root
+    addr: 127.0.0.1:33106
+    db_name: user
+  etcd:
+    addr: 
+      - "127.0.0.1:3790"
+  # redis:
+  #   addr: 127.0.0.1:6379
+  #   read_timeout: 0.2s
+  #   write_timeout: 0.2s

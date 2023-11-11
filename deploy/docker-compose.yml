@@ -1,0 +1,14 @@
+version: '3'
+services: 
+  rwdb:
+    image: mysql:8
+    container_name: mysql33106
+    volumes: 
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/log:/var/log/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+    environment: 
+      MYSQL_ROOT_PASSWORD: dagerous
+    ports: 
+      - 33106:3306
+

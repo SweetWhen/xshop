@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package api.user.v1;
+import "errors/errors.proto";
+
+option go_package = "realworld/api/user/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.user.v1";
+
+enum ErrorReason {
+	option (errors.default_code) = 500;
+
+	// 用户已经存在
+	USER_EXISTED = 0 [(errors.code) = 400];
+	// 用户找不到
+	USER_NOT_FOUND = 1 [(errors.code) = 400];
+	// 入参不对
+	INVAILD_PARAM = 2 [(errors.code) = 400];
+	// 密码错误
+	WRONG_PASSWD = 3 [(errors.code) = 400];
+}
+
+service User {
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
+	rpc GetUser (GetUserRequest) returns (GetUserReply);
+	rpc ListUser (ListUserRequest) returns (ListUserReply);
+	rpc LoginUser (LoginUserReq) returns (LoginUserResp);
+}
+
+message LoginUserReq {
+	string account = 1;
+	string passwd = 2;
+}
+
+message LoginUserResp {
+	int64 uid = 1;
+	string name = 2;
+}
+
+
+message CreateUserRequest {
+	UserBaseInfo info = 1;
+}
+
+message CreateUserReply {
+	UserBaseInfo info = 1;
+}
+
+message UpdateUserRequest {}
+message UpdateUserReply {}
+
+message DeleteUserRequest {}
+message DeleteUserReply {}
+
+message GetUserRequest {}
+message GetUserReply {}
+
+message ListUserRequest {
+	int64 start_id = 1;
+	int64 count = 2;
+	// 0 : all status will return 
+	UserStatus status = 3; 
+}
+message ListUserReply {
+	UserBaseInfo users = 1;
+	int64 next_start_id = 2;
+}
+
+enum UserStatus {
+	NONE = 0;
+	NOT_ACTIVE = 1;
+	ACTIVE = 2;
+	RESIGN = 3; 
+}
+
+message UserBaseInfo {
+	int64 uid = 1;
+	string account = 2;
+	string passwd = 3;
+	string phone_num = 4;
+	string name = 5;
+	UserStatus status = 6; 
+}
