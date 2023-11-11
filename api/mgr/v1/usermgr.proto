@@ -19,6 +19,12 @@ enum ErrorReason {
 }
 
 service User {
+	rpc Heartbeat (HeartbeatRequest) returns (HeartbeatReply) {
+		option (google.api.http) = {
+			get: "/mgr/v1/heartbeat"
+		};
+	}
+
 	rpc LoginUser (LoginUserRequest) returns (LoginUserReply) {
 		option (google.api.http) = {
 			post: "/mgr/v1/login"
@@ -58,6 +64,14 @@ service User {
 message LoginUserRequest {
 	string account = 1;
 	string passwd = 2;
+}
+
+message HeartbeatRequest {
+	
+}
+
+message HeartbeatReply {
+	string msg = 1;
 }
 
 message LoginUserReply {

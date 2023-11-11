@@ -33,8 +33,9 @@ type Data struct {
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	log := log.NewHelper(logger)
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		c.Database.User, c.Database.Passwd, c.Database.Addr, c.Database.DbName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		c.Database.User, c.Database.Passwd, c.Database.Host, c.Database.Port, c.Database.DbName)
+	log.Infof("userdata dsn: %s", dsn)
 	d, err := gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		return nil, nil, err

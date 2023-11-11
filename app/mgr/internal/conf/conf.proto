@@ -33,7 +33,11 @@ message Server {
 message Data {
   message Database {
     string driver = 1;
-    string source = 2;
+    string user = 2;
+    string passwd = 3;
+    string host = 4;
+    string db_name = 5;
+    int32 port = 6;
   }
   message Redis {
     string network = 1;

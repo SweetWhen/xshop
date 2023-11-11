@@ -1,0 +1,70 @@
+resources:
+- "@type": type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+  name: xshop_biz_router
+  virtual_hosts:
+  - name: xshop_biz_router
+    domains:  ["*"]
+    routes:
+    - match:
+        prefix: "/mgr/v1"
+      route:
+        idle_timeout: 60s 
+        timeout: 300s
+        retry_policy:
+          retry_on: reset,refused-stream,connect-failure,retriable_headers
+          num_retries: 3
+          per_try_timeout: 300s
+          host_selection_retry_max_attempts: 4
+          retriable_headers:
+            name: x-retry-switch
+            string_match:
+              exact: 'on'
+          retry_back_off:
+            base_interval: 0.4s
+        cluster: biz_mgr
+
+    - match:
+        safe_regex:
+          google_re2: {}
+          regex:  ^(/users/v1).*
+      route:
+        idle_timeout: 60s 
+        timeout: 300s
+        retry_policy:
+          retry_on: reset,refused-stream,connect-failure,retriable_headers
+          num_retries: 3
+          per_try_timeout: 300s
+          host_selection_retry_max_attempts: 4
+          retriable_headers:
+            name: x-retry-switch
+            string_match:
+              exact: 'on'
+          retry_back_off:
+            base_interval: 0.4s
+        cluster: biz_user
+
+- "@type": type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+  name: xshop_admin_router
+  virtual_hosts:
+  - name: xshop_admin_router
+    domains:  ["*"]
+    routes:
+    - match:
+        safe_regex:
+          google_re2: {}
+          regex:  ^(/admin/v1).*
+      route:
+        idle_timeout: 60s 
+        timeout: 300s
+        retry_policy:
+          retry_on: reset,refused-stream,connect-failure,retriable_headers
+          num_retries: 3
+          per_try_timeout: 300s
+          host_selection_retry_max_attempts: 4
+          retriable_headers:
+            name: x-retry-switch
+            string_match:
+              exact: 'on'
+          retry_back_off:
+            base_interval: 0.4s
+        cluster: admin

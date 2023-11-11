@@ -3,6 +3,7 @@ module realworld
 go 1.20
 
 require (
+	github.com/envoyproxy/go-control-plane v0.11.2-0.20230627204322-7d0032219fcb
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230706115902-bffc1a0989a6
 	github.com/go-kratos/kratos/v2 v2.7.0
 	github.com/google/wire v0.5.0
@@ -35,8 +36,10 @@ require (
 )
 
 require (
+	github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
+	github.com/envoyproxy/protoc-gen-validate v1.0.1 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

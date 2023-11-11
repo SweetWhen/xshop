@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationUserCreateUser = "/api.mgr.v1.User/CreateUser"
 const OperationUserDeleteUser = "/api.mgr.v1.User/DeleteUser"
 const OperationUserGetUser = "/api.mgr.v1.User/GetUser"
+const OperationUserHeartbeat = "/api.mgr.v1.User/Heartbeat"
 const OperationUserListUser = "/api.mgr.v1.User/ListUser"
 const OperationUserLoginUser = "/api.mgr.v1.User/LoginUser"
 const OperationUserUpdateUser = "/api.mgr.v1.User/UpdateUser"
@@ -30,6 +31,7 @@ type UserHTTPServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserReply, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserReply, error)
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatReply, error)
 	ListUser(context.Context, *ListUserRequest) (*ListUserReply, error)
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserReply, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserReply, error)
@@ -37,12 +39,32 @@ type UserHTTPServer interface {
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
+	r.GET("/mgr/v1/heartbeat", _User_Heartbeat0_HTTP_Handler(srv))
 	r.POST("/mgr/v1/login", _User_LoginUser0_HTTP_Handler(srv))
 	r.POST("/mgr/v1/users", _User_CreateUser0_HTTP_Handler(srv))
 	r.PUT("/mgr/v1/users/{info.account}", _User_UpdateUser0_HTTP_Handler(srv))
 	r.DELETE("/mgr/v1/users/{account}", _User_DeleteUser0_HTTP_Handler(srv))
 	r.GET("/mgr/v1/users/{account}", _User_GetUser0_HTTP_Handler(srv))
 	r.GET("/mgr/v1/users", _User_ListUser0_HTTP_Handler(srv))
+}
+
+func _User_Heartbeat0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in HeartbeatRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserHeartbeat)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Heartbeat(ctx, req.(*HeartbeatRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*HeartbeatReply)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _User_LoginUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -172,6 +194,7 @@ type UserHTTPClient interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest, opts ...http.CallOption) (rsp *CreateUserReply, err error)
 	DeleteUser(ctx context.Context, req *DeleteUserRequest, opts ...http.CallOption) (rsp *DeleteUserReply, err error)
 	GetUser(ctx context.Context, req *GetUserRequest, opts ...http.CallOption) (rsp *GetUserReply, err error)
+	Heartbeat(ctx context.Context, req *HeartbeatRequest, opts ...http.CallOption) (rsp *HeartbeatReply, err error)
 	ListUser(ctx context.Context, req *ListUserRequest, opts ...http.CallOption) (rsp *ListUserReply, err error)
 	LoginUser(ctx context.Context, req *LoginUserRequest, opts ...http.CallOption) (rsp *LoginUserReply, err error)
 	UpdateUser(ctx context.Context, req *UpdateUserRequest, opts ...http.CallOption) (rsp *UpdateUserReply, err error)
@@ -216,6 +239,19 @@ func (c *UserHTTPClientImpl) GetUser(ctx context.Context, in *GetUserRequest, op
 	pattern := "/mgr/v1/users/{account}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserGetUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...http.CallOption) (*HeartbeatReply, error) {
+	var out HeartbeatReply
+	pattern := "/mgr/v1/heartbeat"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationUserHeartbeat))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

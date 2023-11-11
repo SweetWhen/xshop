@@ -1,14 +1,51 @@
 version: '3'
 services: 
-  rwdb:
+  mysql:
     image: mysql:8
-    container_name: mysql33106
     volumes: 
       - ./mysql/data:/var/lib/mysql
       - ./mysql/log:/var/log/mysql
       - ./mysql/conf:/etc/mysql/conf.d
     environment: 
-      MYSQL_ROOT_PASSWORD: dagerous
+      - MYSQL_ROOT_PASSWORD=dagerous
+      - MYSQL_DATABASE=xshop      
     ports: 
       - 33106:3306
 
+  etcd: 
+    image: quay.io/coreos/etcd:latest
+    ports:
+      - 2379:2379
+      - 2380:2380
+    command: etcd --name etcd-node --advertise-client-urls http://etcd:2379 --listen-client-urls http://0.0.0.0:2379 
+
+  xshop-urlrouter: 
+    image: envoyproxy/envoy:v1.21.4
+    ports: 
+    - 10000:10000
+    - 9901:9901
+    volumes: 
+      - ../app/urlrouter/share:/share
+      - ../app/urlrouter/envoy.yaml:/etc/envoy/envoy.yaml
+  
+  xshop-user: 
+    image: xshop-user:latest
+    ports: 
+    - 8000:8000
+    - 9000:9000
+    volumes: 
+      - ../app/user/configs:/app/configs
+    depends_on: 
+      - mysql
+      - etcd
+
+  xshop-mgr: 
+    image: xshop-mgr:latest
+    ports: 
+    - 8001:8001
+    - 9001:9001
+    volumes: 
+      - ../app/mgr/configs:/app/configs
+    depends_on: 
+      - mysql
+      - etcd

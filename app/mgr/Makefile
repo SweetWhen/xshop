@@ -53,6 +53,12 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
+.PHONY: build-img
+# build
+build-img:
+	@docker rmi xshop-mgr || true
+	docker build -t xshop-mgr .
+
 .PHONY: generate
 # generate
 generate:
@@ -66,6 +72,8 @@ all:
 	make api;
 	make config;
 	make generate;
+	make build
+	make build-img
 
 # show help
 help:

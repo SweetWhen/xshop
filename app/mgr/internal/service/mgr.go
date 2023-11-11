@@ -46,6 +46,11 @@ type MgrUserSvc struct {
 	uc *biz.MgrUserUsecase
 }
 
+func (mu *MgrUserSvc) Heartbeat(ctx context.Context, req *mgrpb.HeartbeatRequest) (*mgrpb.HeartbeatReply, error) {
+	log.Infof("mgr Heartbeat get a request\n")
+	return &mgrpb.HeartbeatReply{Msg: "pong"}, nil
+}
+
 // LoginUser implements v1.UserHTTPServer.
 func (mu *MgrUserSvc) LoginUser(ctx context.Context, req *mgrpb.LoginUserRequest) (*mgrpb.LoginUserReply, error) {
 	resp, err := mu.uc.UserLogin(ctx, req.Account, req.Passwd)

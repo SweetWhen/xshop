@@ -6,6 +6,18 @@ info:
     title: User API
     version: 0.0.1
 paths:
+    /mgr/v1/heartbeat:
+        get:
+            tags:
+                - User
+            operationId: User_Heartbeat
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.HeartbeatReply'
     /mgr/v1/login:
         post:
             tags:
@@ -149,6 +161,11 @@ components:
             properties:
                 info:
                     $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+        api.mgr.v1.HeartbeatReply:
+            type: object
+            properties:
+                msg:
+                    type: string
         api.mgr.v1.ListUserReply:
             type: object
             properties:

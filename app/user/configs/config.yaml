@@ -4,18 +4,20 @@ server:
     timeout: 1s
   grpc:
     addr: 0.0.0.0:9000
-    timeout: 1s
-  svr_name: user-svr
+    timeout: 3s
+  svr_name: xshop-user
 data:
   database:
     driver: mysql
-    user: root
-    passwd: root
-    addr: 127.0.0.1:33106
-    db_name: user
+    user: sweet
+    # passwd: dagerous
+    passwd: sweet
+    port: 3306
+    host: "mysql"
+    db_name: xshop
   etcd:
     addr: 
-      - "127.0.0.1:3790"
+      - "etcd:2379"
   # redis:
   #   addr: 127.0.0.1:6379
   #   read_timeout: 0.2s

@@ -1,21 +1,22 @@
 server:
   http:
-    addr: 0.0.0.0:8000
-    timeout: 1s
+    addr: 0.0.0.0:8001
+    timeout: 3s
   grpc:
-    addr: 0.0.0.0:9000
-    timeout: 1s
+    addr: 0.0.0.0:9001
+    timeout: 3s
 data:
   database:
     driver: mysql
-    source: root:root@tcp(127.0.0.1:3306)/test
-  redis:
-    addr: 127.0.0.1:6379
-    read_timeout: 0.2s
-    write_timeout: 0.2s
+    user: sweet
+    # passwd: dagerous
+    passwd: sweet
+    port: 3306
+    host: "mysql"
+    db_name: xshop
   etcd:
     addr: 
-      - "127.0.0.1:3790"
+      - "etcd:2379"
 user_svc:
-  svc_name: user-svr
+  svc_name: xshop-user
 

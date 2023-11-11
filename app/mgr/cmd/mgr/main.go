@@ -18,7 +18,7 @@ import (
 // go build -ldflags "-X main.Version=x.y.z"
 var (
 	// Name is the name of the compiled software.
-	Name string = "mgr-svr"
+	Name string = "xshop-mgr"
 	// Version is the version of the compiled software.
 	Version string
 	// flagconf is the config flag.
@@ -76,7 +76,6 @@ func main() {
 	// connGRPC := initUserCli(&bc)
 	// defer connGRPC.Close()
 	// userCli := userpb.NewUserClient(connGRPC)
-
 	app, cleanup, err := wireApp(bc.Server, &bc, logger)
 	if err != nil {
 		panic(err)

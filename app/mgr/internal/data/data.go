@@ -21,14 +21,16 @@ var ProviderSet = wire.NewSet(NewData, NewUserProxy)
 // Data .
 type Data struct {
 	// TODO wrapped database client
-
+	logger  log.Logger
 	userCli userpb.UserClient
 }
 
 // NewData .
 func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
-	d := Data{}
-	connGRPC := initUserCli(c)
+	fmt.Printf("mgr initUserCli c:%+v\n", c)
+	d := Data{logger: logger}
+	return &d, func() {}, nil
+	connGRPC := initUserCli(c, logger)
 	d.userCli = userpb.NewUserClient(connGRPC)
 
 	cleanup := func() {
@@ -38,7 +40,7 @@ func NewData(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	return &d, cleanup, nil
 }
 
-func initUserCli(c *conf.Bootstrap) (gc *srcgrpc.ClientConn) {
+func initUserCli(c *conf.Bootstrap, logger log.Logger) (gc *srcgrpc.ClientConn) {
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints: c.Data.Etcd.Addr,
 	})

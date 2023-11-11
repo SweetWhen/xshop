@@ -53,11 +53,16 @@ api:
 build:
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./...
 
+.PHONY: build-img
+# build
+build-img:
+	@docker rmi xshop-user || true
+	docker build -t xshop-user .
+
 .PHONY: generate
 # generate
 generate:
-	go mod tidy
-	go get github.com/google/wire/cmd/wire@latest
+	go mod tidy && go mod vendor
 	go generate ./...
 
 .PHONY: all
@@ -66,6 +71,8 @@ all:
 	make api;
 	make config;
 	make generate;
+	make build
+	make build-img
 
 # show help
 help:

@@ -1,0 +1,21 @@
+node: 
+  cluster: xshop-urlrouter
+  id: 192.168.2.103
+
+dynamic_resources:  
+  lds_config: 
+    path: /share/lds/lds.yaml
+    resource_api_version: v3
+  cds_config: 
+    path: /share/cds/cds.yaml
+    resource_api_version: v3
+
+admin:
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
+  access_log: 
+  - name: envoy.access_loggers.file
+    typed_config: 
+      "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
