@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	ext_procv3 "github.com/envoyproxy/go-control-plane/envoy/service/ext_proc/v3"
 	"github.com/go-kratos/kratos/v2/log"
 
 	userpb "realworld/api/user/v1"
@@ -17,11 +18,42 @@ type UserService struct {
 	ubiz *biz.UserUsecase
 }
 
+// Process implements ext_procv3.ExternalProcessorServer.
+func (*UserService) Process(svr ext_procv3.ExternalProcessor_ProcessServer) error {
+	ctx := svr.Context()
+	for {
+		req, err := svr.Recv()
+		if err != nil {
+			log.Errorf("extProcess recv err: %v", err)
+			continue
+		}
+		reqH := req.GetRequestHeaders()
+		if reqH != nil {
+			log.Infof("extProcess get req: %=v\n", reqH)
+		}
+		reqBody := req.GetRequestBody()
+		if reqBody != nil {
+			log.Infof("extProcess GetRequestBody: len %d\n", len(reqBody.Body))
+		}
+		resp := &ext_procv3.ProcessingResponse{
+			Response: &ext_procv3.ProcessingResponse_ImmediateResponse{
+				ImmediateResponse: &ext_procv3.ImmediateResponse{
+					Status:     nil,
+					Headers:    nil,
+					Body:       "",
+					GrpcStatus: nil,
+				},
+			},
+		}
+		svr.Send(resp)
+	}
+}
+
 var _ userpb.UserServer = &UserService{}
 
-func NewUserService(log log.Logger, ubiz *biz.UserUsecase) *UserService {
+func NewUserService(l log.Logger, ubiz *biz.UserUsecase) *UserService {
 	return &UserService{
-		log:  log,
+		log:  l,
 		ubiz: ubiz,
 	}
 }

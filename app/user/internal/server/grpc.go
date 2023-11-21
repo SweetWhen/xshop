@@ -5,6 +5,7 @@ import (
 	"realworld/app/user/internal/conf"
 	"realworld/app/user/internal/service"
 
+	authv3 "github.com/envoyproxy/go-control-plane/envoy/service/auth/v3"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
@@ -28,5 +29,6 @@ func NewGRPCServer(c *conf.Server, uc *service.UserService, logger log.Logger) *
 	}
 	srv := grpc.NewServer(opts...)
 	userpb.RegisterUserServer(srv, uc)
+	authv3.RegisterAuthorizationServer(srv.Server, uc)
 	return srv
 }

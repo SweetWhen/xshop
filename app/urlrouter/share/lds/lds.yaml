@@ -82,12 +82,19 @@ resources:
           typed_config:
             "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
             transport_api_version: 2
-            filter_enabled_metadata: {'filter': 'envoy.filters.http.ext_authz', 'path': [{'key': 'path'}], 'value': {'string_match': {'prefix': '/mgr/v1'}}}
+            # filter_enabled_metadata: {'filter': 'envoy.filters.http.ext_authz', 'path': [{'key': 'path'}], 'value': {'string_match': {'prefix': '/mgr/v1'}}}
             grpc_service: {'envoy_grpc': {'cluster_name': 'biz_user_grpc'}, 'timeout': '3s'}
-            with_request_body: {'max_request_bytes': 65535, 'allow_partial_message': True, 'pack_as_bytes': True}
+            with_request_body: {'max_request_bytes': 65535, 'allow_partial_message': false, 'pack_as_bytes': True}
+            clear_route_cache: true
+            status_on_error: 
+              code: ServiceUnavailable
         - name: envoy.filters.http.router
           typed_config:
             "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
+        - name: envoy.filters.http.ext_proc
+          typed_config: 
+            "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
+
         route_config:
           name: xshop_biz_router
           virtual_hosts:
