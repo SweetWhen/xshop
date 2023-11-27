@@ -32,6 +32,7 @@ type Data struct {
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
+	return &Data{}, func() {}, nil
 	log := log.NewHelper(logger)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		c.Database.User, c.Database.Passwd, c.Database.Host, c.Database.Port, c.Database.DbName)

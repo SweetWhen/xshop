@@ -26,6 +26,6 @@ func NewHTTPServer(c *conf.Server, uc *service.UserService, logger log.Logger) *
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	// userpb.RegisterUserServer(srv, uc)
+	//userpb.RegisterUserServer(srv, uc)
 	return srv
 }

@@ -43,69 +43,39 @@ resources:
                      typed_config:
                       "@type": type.googleapis.com/envoy.extensions.formatter.req_without_query.v3.ReqWithoutQuery     
         http_filters:
-        - name: envoy.filters.http.compressor
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.compressor.v3.Compressor
-            response_direction_config:
-              common_config:
-                min_content_length: 1024
-                content_type:
-                - text/plain
-                - application/json
-                - application/x-javascript
-                - application/javascript
-                - text/css
-                - application/xml
-              disable_on_etag_header: true
-            compressor_library:
-              name: text_optimized
-              typed_config:
-                "@type": type.googleapis.com/envoy.extensions.compression.gzip.compressor.v3.Gzip
-                memory_level: 5
-                window_bits: 12
-        - name: envoy.filters.http.lua
-          is_optional: false
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
-            inline_code: " "
-        - name: envoy.filters.http.rbac
-          is_optional: false
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.rbac.v3.RBAC
-        - name: envoy.filters.http.header_to_metadata
-          is_optional: false
-          typed_config:
-            "@type": type.googleapis.com/envoy.extensions.filters.http.header_to_metadata.v3.Config
-            request_rules: [{'header': ':path', 'on_header_present': {'metadata_namespace': 'envoy.filters.http.ext_authz', 'key': 'path'}}]
         - name: envoy.filters.http.ext_authz
-          is_optional: false
           typed_config:
             "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
             transport_api_version: 2
             # filter_enabled_metadata: {'filter': 'envoy.filters.http.ext_authz', 'path': [{'key': 'path'}], 'value': {'string_match': {'prefix': '/mgr/v1'}}}
-            grpc_service: {'envoy_grpc': {'cluster_name': 'biz_user_grpc'}, 'timeout': '3s'}
-            with_request_body: {'max_request_bytes': 65535, 'allow_partial_message': false, 'pack_as_bytes': True}
+            grpc_service: { 'envoy_grpc': { 'cluster_name': 'biz_user_grpc' }, 'timeout': '3s' }
+            with_request_body: { 'max_request_bytes': 65535, 'allow_partial_message': false, 'pack_as_bytes': True }
             clear_route_cache: true
-            status_on_error: 
+            status_on_error:
               code: ServiceUnavailable
         - name: envoy.filters.http.router
           typed_config:
             "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-        - name: envoy.filters.http.ext_proc
-          typed_config: 
-            "@type": type.googleapis.com/envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor
-
         route_config:
           name: xshop_biz_router
           virtual_hosts:
-          - name: xshop_biz_mgr          
+          - name: xshop_biz_mgr
             domains:  ["*"]
             routes:
             - match:
-                prefix: "/mgr/v1"
+                safe_regex:
+                  google_re2: { }
+                  regex: ^(/mgr/v1).*
+              typed_per_filter_config:
+                envoy.filters.http.ext_authz:
+                  "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute
+                  disable: false
+                  check_settings:
+                    context_extensions:
+                      "upstream_cluster": "biz_mgr"
               route:
                  cluster: biz_mgr
-                 idle_timeout: 60s 
+                 idle_timeout: 60s
                  timeout: 300s
                  retry_policy:
                    retry_on: reset,refused-stream,connect-failure,retriable_headers

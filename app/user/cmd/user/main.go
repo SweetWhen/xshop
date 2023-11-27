@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/go-kratos/kratos/v2/transport/http"
 	"os"
 
 	"realworld/app/user/internal/conf"
@@ -36,7 +37,7 @@ func init() {
 
 func newApp(logger log.Logger, cfgData *conf.Data,
 	gs *grpc.Server,
-	//  hs *http.Server,
+	hs *http.Server,
 ) *kratos.App {
 	client, err := etcdclient.New(etcdclient.Config{
 		Endpoints: cfgData.Etcd.Addr,
@@ -53,7 +54,7 @@ func newApp(logger log.Logger, cfgData *conf.Data,
 		kratos.Logger(logger),
 		kratos.Server(
 			gs,
-			// hs,
+			hs,
 		),
 		kratos.Registrar(r),
 	)

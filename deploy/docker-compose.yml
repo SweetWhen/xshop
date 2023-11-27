@@ -1,16 +1,16 @@
 version: '3'
 services: 
-  mysql:
-    image: mysql:8
-    volumes: 
-      - ./mysql/data:/var/lib/mysql
-      - ./mysql/log:/var/log/mysql
-      - ./mysql/conf:/etc/mysql/conf.d
-    environment: 
-      - MYSQL_ROOT_PASSWORD=dagerous
-      - MYSQL_DATABASE=xshop      
-    ports: 
-      - 33106:3306
+#  mysql:
+#    image: mysql:8
+#    volumes:
+#      - ./mysql/data:/var/lib/mysql
+#      - ./mysql/log:/var/log/mysql
+#      - ./mysql/conf:/etc/mysql/conf.d
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=dagerous
+#      - MYSQL_DATABASE=xshop
+#    ports:
+#      - 33106:3306
 
   etcd: 
     image: quay.io/coreos/etcd:latest
@@ -24,7 +24,13 @@ services:
     ports: 
     - 10000:10000
     - 9901:9901
-    volumes: 
+    command:
+      - "envoy"
+      - "-c"
+      - "/etc/envoy/envoy.yaml"
+#      - "--log-level"
+#      - "debug"
+    volumes:
       - ../app/urlrouter/share:/share
       - ../app/urlrouter/envoy.yaml:/etc/envoy/envoy.yaml
   
@@ -36,7 +42,7 @@ services:
     volumes: 
       - ../app/user/configs:/app/configs
     depends_on: 
-      - mysql
+#      - mysql
       - etcd
 
   xshop-mgr: 
@@ -47,5 +53,5 @@ services:
     volumes: 
       - ../app/mgr/configs:/app/configs
     depends_on: 
-      - mysql
+#      - mysql
       - etcd

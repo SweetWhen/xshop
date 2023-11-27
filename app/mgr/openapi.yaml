@@ -45,13 +45,11 @@ paths:
                 - name: startId
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
                 - name: count
                   in: query
                   schema:
-                    type: integer
-                    format: int64
+                    type: string
                 - name: status
                   in: query
                   description: '0 : all status will return'
@@ -172,14 +170,12 @@ components:
                 users:
                     $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
                 nextStartId:
-                    type: integer
-                    format: int64
+                    type: string
         api.mgr.v1.LoginUserReply:
             type: object
             properties:
                 uid:
-                    type: integer
-                    format: int64
+                    type: string
                 name:
                     type: string
         api.mgr.v1.LoginUserRequest:
@@ -201,8 +197,7 @@ components:
             type: object
             properties:
                 uid:
-                    type: integer
-                    format: int64
+                    type: string
                 account:
                     type: string
                 passwd:
