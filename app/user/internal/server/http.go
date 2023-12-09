@@ -1,6 +1,7 @@
 package server
 
 import (
+	userpb "realworld/api/user/v1"
 	"realworld/app/user/internal/conf"
 	"realworld/app/user/internal/service"
 
@@ -26,6 +27,6 @@ func NewHTTPServer(c *conf.Server, uc *service.UserService, logger log.Logger) *
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	//userpb.RegisterUserServer(srv, uc)
+	userpb.RegisterUserHTTPServer(srv, uc)
 	return srv
 }

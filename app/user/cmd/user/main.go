@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/go-kratos/kratos/v2/transport/http"
 	"os"
+
+	"github.com/go-kratos/kratos/v2/transport/http"
 
 	"realworld/app/user/internal/conf"
 

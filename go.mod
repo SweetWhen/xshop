@@ -3,6 +3,7 @@ module realworld
 go 1.20
 
 require (
+	github.com/anaskhan96/go-password-encoder v0.0.0-20201010210601-c765b799fd72
 	github.com/envoyproxy/go-control-plane v0.11.2-0.20230627204322-7d0032219fcb
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20230706115902-bffc1a0989a6
 	github.com/go-kratos/kratos/v2 v2.7.0
@@ -52,5 +53,6 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.19.0 // indirect
+	golang.org/x/crypto v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 )

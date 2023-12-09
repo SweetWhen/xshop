@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package api.user.v1;
 import "errors/errors.proto";
+import "google/api/annotations.proto";
 
 option go_package = "realworld/api/user/v1;v1";
 option java_multiple_files = true;
@@ -21,16 +22,58 @@ enum ErrorReason {
 }
 
 service User {
-	rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
-	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
-	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
-	rpc GetUser (GetUserRequest) returns (GetUserReply);
-	rpc ListUser (ListUserRequest) returns (ListUserReply);
-	rpc LoginUser (LoginUserReq) returns (LoginUserResp);
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
+		option (google.api.http) = {
+			post: "/user/v1/users"
+			body: "*"
+		};
+	};
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
+		option (google.api.http) = {
+			put: "/user/v1/users/{account}"
+			body: "*"
+		};
+	};
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply) {
+		option (google.api.http) = {
+			delete: "/user/v1/users/{account}"
+		};
+	};
+	rpc GetUser (GetUserRequest) returns (GetUserReply) {
+		option (google.api.http) = {
+			get: "/user/v1/users/{account}"
+		};
+	};
+	rpc ListUser (ListUserRequest) returns (ListUserReply) {
+		option (google.api.http) = {
+			get: "/user/v1/users"
+		};
+	};
+	rpc GetLoginInfo(LoginInfoRequest) returns (LoginInfoReply) {
+		option (google.api.http) = {
+			get : "/user/v1/users/{account}/login/info"
+		};
+	};
+	rpc LoginUser (LoginUserReq) returns (LoginUserResp) {
+		option (google.api.http) = {
+			post: "/user/v1/users/login"
+			body: "*"
+		};
+	};
+}
+
+message LoginInfoRequest {
+	string account = 1;
+}
+
+message LoginInfoReply {
+	//非对称加密公钥
+	string public_key = 1;
 }
 
 message LoginUserReq {
 	string account = 1;
+	// 非对称加密之后的密码
 	string passwd = 2;
 }
 
@@ -48,14 +91,27 @@ message CreateUserReply {
 	UserBaseInfo info = 1;
 }
 
-message UpdateUserRequest {}
+message UpdateUserRequest {
+	string account = 1;
+	optional string passwd = 2;
+	optional string phone_num = 3;
+	optional string name = 4;
+}
+
 message UpdateUserReply {}
 
-message DeleteUserRequest {}
+message DeleteUserRequest {
+	string account = 1;
+}
 message DeleteUserReply {}
 
-message GetUserRequest {}
-message GetUserReply {}
+message GetUserRequest {
+	string account = 1;
+}
+
+message GetUserReply {
+	UserBaseInfo info = 1;
+}
 
 message ListUserRequest {
 	int64 start_id = 1;
@@ -64,7 +120,7 @@ message ListUserRequest {
 	UserStatus status = 3; 
 }
 message ListUserReply {
-	UserBaseInfo users = 1;
+	repeated UserBaseInfo users = 1;
 	int64 next_start_id = 2;
 }
 

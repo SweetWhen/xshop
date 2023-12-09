@@ -59,9 +59,24 @@ func doUserToBizUser(ud *UserDO) *biz.User {
 	}
 }
 
-func (ur *userRepo) Update(ctx context.Context, bu *biz.User) error {
-	ud := bizUserToDOUser(bu)
-	result := ur.data.userDB.WithContext(ctx).Model(&UserDO{}).Updates(ud)
+func (ur *userRepo) Update(ctx context.Context, bu *biz.UserUpdate) error {
+	us := make(map[string]any)
+	if bu.Name != nil {
+		us["name"] = bu.Name
+	}
+	if bu.PassWD != nil {
+		us["pass_wd"] = bu.PassWD
+	}
+	if bu.PhoneNum != nil {
+		us["phone_num"] = bu.PhoneNum
+	}
+	if len(us) == 0 {
+		return userpb.ErrorInvaildParam("nothing to update")
+	}
+	result := ur.data.userDB.WithContext(ctx).Model(&UserDO{}).Where("account = ?", bu.Account).Updates(us)
+	if result.RowsAffected == 0 {
+		return userpb.ErrorUserNotFound("account: %s", bu.Account)
+	}
 	if result.Error != nil {
 		return result.Error
 	}
@@ -78,9 +93,17 @@ func (ur *userRepo) Get(ctx context.Context, ac string) (*biz.User, error) {
 	return doUserToBizUser(&ud), nil
 }
 
-func (ur *userRepo) ListUser(ctx context.Context, startId int64, cnt int64) (bus []*biz.User, nextStartId int64, err error) {
+func (ur *userRepo) Delete(ctx context.Context, ac string) error {
+	result := ur.data.userDB.WithContext(ctx).Update("status", userpb.UserStatus_NOT_ACTIVE).Where("account = ?", ac)
+	if result.RowsAffected == 0 {
+		return userpb.ErrorUserNotFound("account: %s", ac)
+	}
+	return result.Error
+}
+
+func (ur *userRepo) ListUser(ctx context.Context, startId int64, cnt int64, status int) (bus []*biz.User, nextStartId int64, err error) {
 	users := make([]*UserDO, 0, int(cnt))
-	result := ur.data.userDB.WithContext(ctx).Where("uid > ?", startId).Order("uid asc").Limit(int(cnt)).Find(&users)
+	result := ur.data.userDB.WithContext(ctx).Where("uid > ?", startId).Where("status = ?", status).Order("uid asc").Limit(int(cnt)).Find(&users)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
