@@ -91,7 +91,7 @@ resources:
             - match:
                 safe_regex:
                   google_re2: {}
-                  regex:  ^(/users/v1).*
+                  regex:  ^(/user/).*
               route:
                 cluster: biz_user
                 idle_timeout: 60s 

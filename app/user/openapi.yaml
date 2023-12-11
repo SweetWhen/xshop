@@ -121,6 +121,12 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: hard
+                  in: query
+                  description: 'hard: 1-删除记录；0-只是标准状态为noactive'
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK

@@ -9,17 +9,18 @@ import (
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	gormLog "gorm.io/gorm/logger"
 )
 
 type UserDO struct {
-	Uid       int64  `gorm:"primaryKey"`
-	Account   string `gorm:"index:idx_account,unique"`
-	PassWD    string
-	Name      string
-	PhoneNum  string
-	Status    int
-	CreatedAt time.Time
-	UpatedAt  time.Time
+	Uid       int64     `gorm:"primaryKey"`
+	Account   string    `gorm:"uniqueIndex:idx_uk_account;type:varchar(128) not null;defualt:'';comment:'用户账号'"`
+	PassWD    string    `gorm:"type:varchar(256) not null;default:'';comment:'用户密码'"`
+	Name      string    `gorm:"type:varchar(32) not null;default:''"`
+	PhoneNum  string    `gorm:"type:varchar(16) not null; defualt:''"`
+	Status    int       `gorm:"type:smallint;default:0"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpatedAt  time.Time `gorm:"autoUpdateTime:nano"`
 }
 
 // ProviderSet is data providers.
@@ -32,12 +33,15 @@ type Data struct {
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
-	return &Data{}, func() {}, nil
+	// return &Data{}, func() {}, nil
 	log := log.NewHelper(logger)
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		c.Database.User, c.Database.Passwd, c.Database.Host, c.Database.Port, c.Database.DbName)
 	log.Infof("userdata dsn: %s", dsn)
-	d, err := gorm.Open(mysql.Open(dsn))
+	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		PrepareStmt: true,
+		Logger:      gormLog.Default.LogMode(gormLog.Info),
+	})
 	if err != nil {
 		return nil, nil, err
 	}
@@ -45,7 +49,6 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	d2.SetMaxIdleConns(10)
 	d2.SetMaxOpenConns(100)
 	d2.SetConnMaxIdleTime(time.Minute * 30)
-
 	// rdb := redis.NewClient(&redis.Options{
 	// 	Addr:         conf.Redis.Addr,
 	// 	Password:     conf.Redis.Password,

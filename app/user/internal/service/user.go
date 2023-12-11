@@ -49,8 +49,8 @@ func bizUserToPbUser(bu *biz.User) (info *userpb.UserBaseInfo) {
 	return &userpb.UserBaseInfo{
 		Uid:      bu.Uid,
 		Account:  bu.Account,
-		PhoneNum: info.PhoneNum,
-		Name:     info.Name,
+		PhoneNum: bu.PhoneNum,
+		Name:     bu.Name,
 		Status:   userpb.UserStatus(bu.Status),
 	}
 }
@@ -90,7 +90,7 @@ func (us *UserService) UpdateUser(c context.Context, req *userpb.UpdateUserReque
 }
 
 func (us *UserService) DeleteUser(c context.Context, req *userpb.DeleteUserRequest) (resp *userpb.DeleteUserReply, err error) {
-	err = us.ubiz.Delete(c, req.Account)
+	err = us.ubiz.Delete(c, req.Account, req.Hard)
 	return &userpb.DeleteUserReply{}, err
 }
 
@@ -106,8 +106,8 @@ func (us *UserService) ListUser(c context.Context, req *userpb.ListUserRequest) 
 	if req.StartId < 0 {
 		req.StartId = 0
 	}
-	if req.Count > 500 {
-		req.Count = 500
+	if req.Count <= 0 {
+		req.Count = 200
 	}
 	bus, nextStartId, err := us.ubiz.ListUser(c, req.StartId, req.Count, int(req.Status))
 	if err != nil {

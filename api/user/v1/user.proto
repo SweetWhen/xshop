@@ -102,6 +102,8 @@ message UpdateUserReply {}
 
 message DeleteUserRequest {
 	string account = 1;
+	// hard: 1-删除记录；0-只是标准状态为noactive
+	int32 hard = 2;
 }
 message DeleteUserReply {}
 

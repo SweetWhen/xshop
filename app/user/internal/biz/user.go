@@ -2,13 +2,9 @@ package biz
 
 import (
 	"context"
-	"crypto/sha512"
-	"fmt"
-	"strings"
 
 	userpb "realworld/api/user/v1"
 
-	"github.com/anaskhan96/go-password-encoder"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -34,16 +30,17 @@ type UserRepo interface {
 	Create(context.Context, *User) (*User, error)
 	Update(context.Context, *UserUpdate) error
 	Get(context.Context, string) (*User, error)
-	Delete(context.Context, string) error
+	Delete(context.Context, string, int32) error
 	ListUser(ctx context.Context, startId int64, cnt int64, status int) (bus []*User, nextStartId int64, err error)
 }
 
 // NewGreeterUsecase new a Greeter usecase.
 func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
 	return &UserUsecase{
-		repo:    repo,
-		log:     log.NewHelper(logger),
-		rsaImpl: NewRSAImpl(""),
+		repo:     repo,
+		log:      log.NewHelper(logger),
+		rsaImpl:  NewRSAImpl(""),
+		pwEncode: NewPWEncode(),
 	}
 }
 
@@ -51,9 +48,10 @@ var _ UserRepo = &UserUsecase{}
 
 // UserUsecase is a Greeter usecase.
 type UserUsecase struct {
-	repo    UserRepo
-	rsaImpl *RSAImpl
-	log     *log.Helper
+	repo     UserRepo
+	rsaImpl  *RSAImpl
+	pwEncode *PWEncode
+	log      *log.Helper
 }
 
 // UserLogin implements UserRepo.
@@ -67,17 +65,9 @@ func (uc *UserUsecase) UserLogin(ctx context.Context, account string, pw string)
 	}
 
 	//todo: rsa解密得到用户密码原文
-
-	options := &password.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
-	passwordInfo := strings.Split(u.PassWD, "$")
-	if len(passwordInfo) != 2 {
-		uc.log.WithContext(ctx).Errorf("CreateUser: %s get a pwInfo:V", account, passwordInfo)
-		err = userpb.ErrorWrongPasswd("account: %s, len(passwordInfo):%d", account, len(passwordInfo))
-		return
-	}
-	check := password.Verify(pw, passwordInfo[0], passwordInfo[1], options)
-	if !check {
-		uc.log.WithContext(ctx).Debugf("CreateUser: %s  check failed", account)
+	e := uc.pwEncode.Decode(pw, u.PassWD)
+	if e != nil {
+		uc.log.WithContext(ctx).Errorf("CreateUser: %s get a pwInfo:V", account, u)
 		err = userpb.ErrorWrongPasswd("account: %s, check failed", account)
 		return
 	}
@@ -91,10 +81,7 @@ func (uc *UserUsecase) Create(ctx context.Context, g *User) (*User, error) {
 	//todo:  rsa解密用户上传的密码
 
 	//密码加盐存储到db
-	options := &password.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
-	salt, encodedPwd := password.Encode(g.PassWD, options)
-	g.PassWD = fmt.Sprintf("%s$%s", salt, encodedPwd)
-
+	g.PassWD = uc.pwEncode.Encode(g.PassWD)
 	u, err := uc.repo.Create(ctx, g)
 	if err != nil {
 		return nil, err
@@ -111,8 +98,8 @@ func (uc *UserUsecase) Get(c context.Context, ac string) (*User, error) {
 	return uc.repo.Get(c, ac)
 }
 
-func (uc *UserUsecase) Delete(c context.Context, ac string) error {
-	return uc.repo.Delete(c, ac)
+func (uc *UserUsecase) Delete(c context.Context, ac string, hard int32) error {
+	return uc.repo.Delete(c, ac, hard)
 }
 
 func (uc *UserUsecase) ListUser(ctx context.Context, startId int64, cnt int64, status int) (bus []*User, nextStartId int64, err error) {

@@ -93,17 +93,26 @@ func (ur *userRepo) Get(ctx context.Context, ac string) (*biz.User, error) {
 	return doUserToBizUser(&ud), nil
 }
 
-func (ur *userRepo) Delete(ctx context.Context, ac string) error {
-	result := ur.data.userDB.WithContext(ctx).Update("status", userpb.UserStatus_NOT_ACTIVE).Where("account = ?", ac)
-	if result.RowsAffected == 0 {
-		return userpb.ErrorUserNotFound("account: %s", ac)
+func (ur *userRepo) Delete(ctx context.Context, ac string, hard int32) error {
+	var result *gorm.DB
+	if hard == 1 {
+		result = ur.data.userDB.WithContext(ctx).Where("account = ?", ac).Delete(&UserDO{})
+	} else {
+		result = ur.data.userDB.WithContext(ctx).Model(&UserDO{}).Where("account = ?", ac).Update("status", userpb.UserStatus_NOT_ACTIVE)
+		if result.RowsAffected == 0 {
+			return userpb.ErrorUserNotFound("account: %s", ac)
+		}
 	}
 	return result.Error
 }
 
 func (ur *userRepo) ListUser(ctx context.Context, startId int64, cnt int64, status int) (bus []*biz.User, nextStartId int64, err error) {
 	users := make([]*UserDO, 0, int(cnt))
-	result := ur.data.userDB.WithContext(ctx).Where("uid > ?", startId).Where("status = ?", status).Order("uid asc").Limit(int(cnt)).Find(&users)
+	tx := ur.data.userDB.WithContext(ctx).Where("uid > ?", startId)
+	if status != 0 {
+		tx.Where("status = ?", status)
+	}
+	result := tx.Order("uid asc").Limit(int(cnt)).Find(&users)
 	if result.Error != nil {
 		return nil, 0, result.Error
 	}
