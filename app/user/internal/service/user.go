@@ -55,6 +55,14 @@ func bizUserToPbUser(bu *biz.User) (info *userpb.UserBaseInfo) {
 	}
 }
 
+func (us *UserService) GetJWTSK() string {
+	return us.ubiz.GetJWTSK()
+}
+
+func (us *UserService) GetJWTPK() string {
+	return us.ubiz.GetJWTPK()
+}
+
 // GetLoginInfo implements v1.UserServer.
 func (*UserService) GetLoginInfo(context.Context, *userpb.LoginInfoRequest) (*userpb.LoginInfoReply, error) {
 	panic("impl me")

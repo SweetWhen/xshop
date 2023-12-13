@@ -21,6 +21,10 @@ enum ErrorReason {
 	WRONG_PASSWD = 3 [(errors.code) = 400];
 }
 
+message MyCustomClaims {
+
+}
+
 service User {
 	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
 		option (google.api.http) = {

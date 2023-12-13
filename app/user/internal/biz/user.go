@@ -4,6 +4,7 @@ import (
 	"context"
 
 	userpb "realworld/api/user/v1"
+	"realworld/app/user/internal/conf"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -35,13 +36,18 @@ type UserRepo interface {
 }
 
 // NewGreeterUsecase new a Greeter usecase.
-func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
-	return &UserUsecase{
+func NewUserUsecase(repo UserRepo, logger log.Logger, confData *conf.Data) *UserUsecase {
+
+	uc := &UserUsecase{
 		repo:     repo,
 		log:      log.NewHelper(logger),
-		rsaImpl:  NewRSAImpl(""),
+		rsaImpl:  NewRSAImpl(confData.RsaPrivate),
 		pwEncode: NewPWEncode(),
 	}
+
+	uc.log.Debugf("NewUserUsecase privateRSA:\n%s\n, \npublicRSA:\n%s\n", confData.RsaPrivate, confData.RsaPublic)
+
+	return uc
 }
 
 var _ UserRepo = &UserUsecase{}
@@ -52,6 +58,14 @@ type UserUsecase struct {
 	rsaImpl  *RSAImpl
 	pwEncode *PWEncode
 	log      *log.Helper
+}
+
+func (uc *UserUsecase) GetJWTPK() string {
+	return uc.rsaImpl.publicKey
+}
+
+func (uc *UserUsecase) GetJWTSK() string {
+	return uc.rsaImpl.privateKey
 }
 
 // UserLogin implements UserRepo.

@@ -22,3 +22,26 @@ data:
   #   addr: 127.0.0.1:6379
   #   read_timeout: 0.2s
   #   write_timeout: 0.2s
+  rsa_private: |-
+    -----BEGIN RSA PRIVATE KEY-----
+    MIICXQIBAAKBgQDOUvfYlL7+c6oY5c3Uj84qbJDmX0pL6xycWYxwJUat24FYdAGE
+    mvIA9JcFf3xwehEEYhJcDmr5saVZkg0x8t1YgRhlz0q6W65AQCH4Ghn4GiWmzcjI
+    ZolxmflQrlhoPhHMldabuW9wA5WD6UzUaV7IIIb8bWpARAYy/afLgt7dPQIDAQAB
+    AoGAf9BoF3R2KT1P92KNMwvvBNsCnKQVa5h3vee/l02QTm234CrlMdem6a6by90h
+    IrCL0DJM+1g3Lv282BMhN3sjYO5ZKRH0H/fyaE1KbAmYgD9fwhu5/fJHxvHXkRLm
+    TbdD2Gke8dKDaeq9GkyMRDDf5LirRkMXVP2tZM69PGtcImUCQQDyaaBo+hTop8nB
+    fxSiwVm5exhFdrPPXJq+/bmfXV1RiwVb0heLFjCQnYQi90Dw2xT+17lN5Uvn8P4T
+    afJ8xfqPAkEA2eOCHlRRDhiKFOmXQ2KE94iKnRppG9VkZIkgIehXv1mM5nkMzRCS
+    yfXXpfU44+qw895LwM5Oh4NhhRGBhh9BcwJBAMoKGzYjaRXX8qIhJrPX7s5WuA39
+    NzRW/Gq+0dzvVf3Gnrq+yfyUi/mcLyttZGTaVA9rAPjZaYBxLXJE1WQFJiUCQCZm
+    YCI0Pey8CmnRGSV5EXIGkFdLtkZ/fyfwusb/CafhgmGD5+ukBhqtxwmqhBI25GS2
+    QqeCNHjRgLhQ84DNtV0CQQCghkkl6BW9pyq0YM3LqAW2fEKeJGOQATgJYrH1dgpe
+    NgqTEyKchEresIYfq+XDodNZ9c3Gsn+YxIpczcWT7AHZ
+    -----END RSA PRIVATE KEY-----
+
+  rsa_public: |-
+    -----BEGIN RSA PUBLIC KEY-----
+    MIGJAoGBAM5S99iUvv5zqhjlzdSPzipskOZfSkvrHJxZjHAlRq3bgVh0AYSa8gD0
+    lwV/fHB6EQRiElwOavmxpVmSDTHy3ViBGGXPSrpbrkBAIfgaGfgaJabNyMhmiXGZ
+    +VCuWGg+EcyV1pu5b3ADlYPpTNRpXsgghvxtakBEBjL9p8uC3t09AgMBAAE=
+    -----END RSA PUBLIC KEY-----

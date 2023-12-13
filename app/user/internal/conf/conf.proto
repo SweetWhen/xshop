@@ -47,4 +47,6 @@ message Data {
   Database database = 1;
   Redis redis = 2;
   ETCD etcd = 3;
+  string rsa_private = 4;
+  string rsa_public = 5;
 }

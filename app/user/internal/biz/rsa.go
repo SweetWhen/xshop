@@ -52,19 +52,14 @@ func (impl *RSAImpl) initKeys() (err error) {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(impl.privateObj),
 	}
-	privateKeyBuff := &bytes.Buffer{}
-	pem.Encode(privateKeyBuff, privateKeyPEM)
+	impl.privateKey = string(pem.EncodeToMemory(privateKeyPEM))
 
 	publicKey := &impl.privateObj.PublicKey
 	publicKeyPEM := &pem.Block{
 		Type:  "RSA PUBLIC KEY",
 		Bytes: x509.MarshalPKCS1PublicKey(publicKey),
 	}
-	publicKeyBuff := &bytes.Buffer{}
-	pem.Encode(publicKeyBuff, publicKeyPEM)
-	impl.privateKey = privateKeyBuff.String()
-	impl.publicKey = publicKeyBuff.String()
-
+	impl.publicKey = string(pem.EncodeToMemory(publicKeyPEM))
 	return
 }
 
