@@ -24,6 +24,7 @@ message Server {
   HTTP http = 1;
   GRPC grpc = 2;
   string svr_name = 3;
+  google.protobuf.Duration jwt_interval = 4;
 }
 //"root:root@tcp(127.0.0.1:3306)/realworld?charset=utf8mb4&parseTime=True&loc=Local"
 message Data {
@@ -44,9 +45,14 @@ message Data {
   message ETCD {
     repeated string addr = 1;
   }
+  message ES {
+    string host = 1;
+    int32 port = 2;
+  }
   Database database = 1;
   Redis redis = 2;
   ETCD etcd = 3;
   string rsa_private = 4;
   string rsa_public = 5;
+  ES es_info = 6;
 }

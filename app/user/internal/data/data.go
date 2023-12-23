@@ -2,11 +2,15 @@ package data
 
 import (
 	"fmt"
-	"realworld/app/user/internal/conf"
+	fmtLog "log"
+	"os"
 	"time"
+
+	"realworld/app/user/internal/conf"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/olivere/elastic/v7"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	gormLog "gorm.io/gorm/logger"
@@ -29,7 +33,10 @@ var ProviderSet = wire.NewSet(NewUserRepo, NewData)
 // Data .
 type Data struct {
 	userDB *gorm.DB
+	esCli  *elastic.Client
 }
+
+var esCli *elastic.Client
 
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
@@ -58,7 +65,6 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	// 	ReadTimeout:  conf.Redis.ReadTimeout.AsDuration(),
 	// })
 	// rdb.AddHook(redisotel.TracingHook{})
-
 	resData := &Data{
 		userDB: d,
 		// rdb: rdb,
@@ -66,7 +72,11 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 	if err := resData.userDB.AutoMigrate(&UserDO{}); err != nil {
 		return nil, nil, err
 	}
-
+	resData.esCli, err = InitEs(c.EsInfo)
+	if err != nil {
+		panic(err)
+	}
+	esCli = resData.esCli
 	return resData, func() {
 		log.Info("message", "closing the data resources")
 		if err := d2.Close(); err != nil {
@@ -76,4 +86,15 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 		// 	log.Error(err)
 		// }
 	}, nil
+}
+
+func InitEs(esCfg *conf.Data_ES) (cli *elastic.Client, err error) {
+	//初始化连接
+	host := fmt.Sprintf("http://%s:%d", esCfg.Host, esCfg.Port)
+	cli, err = elastic.NewClient(elastic.SetURL(host), elastic.SetSniff(false),
+		elastic.SetTraceLog(fmtLog.New(os.Stdout, "xshop", fmtLog.Flags())))
+	if err != nil {
+		return
+	}
+	return
 }

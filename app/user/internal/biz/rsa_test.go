@@ -8,7 +8,8 @@ import (
 )
 
 func TestGenerateRSAKey(t *testing.T) {
-	impl := NewRSAImpl("")
+	pk := ""
+	impl := NewRSAImpl(pk)
 	privateKeyStr := impl.privateKey
 	publicKeyStr := impl.publicKey
 	fmt.Printf("privateKey: %s\n", privateKeyStr)

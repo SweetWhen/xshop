@@ -6,6 +6,28 @@ info:
     title: User API
     version: 0.0.1
 paths:
+    /user/v1/search/users:
+        get:
+            tags:
+                - User
+            operationId: User_SearchUser
+            parameters:
+                - name: nameKey
+                  in: query
+                  schema:
+                    type: string
+                - name: count
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.SearchUserResp'
     /user/v1/users:
         get:
             tags:
@@ -88,29 +110,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.GetUserReply'
-        put:
-            tags:
-                - User
-            operationId: User_UpdateUser
-            parameters:
-                - name: account
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.user.v1.UpdateUserRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.user.v1.UpdateUserReply'
         delete:
             tags:
                 - User
@@ -152,6 +151,55 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.LoginInfoReply'
+    /user/v1/users/{account}/logout:
+        post:
+            tags:
+                - User
+            operationId: User_LogoutUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.LogoutUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.LogoutUserResp'
+    /user/v1/users/{uid}:
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            parameters:
+                - name: uid
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UpdateUserReply'
 components:
     schemas:
         api.user.v1.CreateUserReply:
@@ -188,6 +236,9 @@ components:
                 publicKey:
                     type: string
                     description: 非对称加密公钥
+                privateKey:
+                    type: string
+                    description: 调试用，正式不应该返回私钥
         api.user.v1.LoginUserReq:
             type: object
             properties:
@@ -204,14 +255,51 @@ components:
                     format: int64
                 name:
                     type: string
+        api.user.v1.LogoutUserReq:
+            type: object
+            properties:
+                account:
+                    type: string
+        api.user.v1.LogoutUserResp:
+            type: object
+            properties: {}
+        api.user.v1.SearchUserResp:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.SearchUserResp_UserInfo'
+                total:
+                    type: integer
+                    format: int32
+        api.user.v1.SearchUserResp_HL:
+            type: object
+            properties:
+                feild:
+                    type: string
+                values:
+                    type: array
+                    items:
+                        type: string
+        api.user.v1.SearchUserResp_UserInfo:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+                hl:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.SearchUserResp_HL'
         api.user.v1.UpdateUserReply:
             type: object
             properties: {}
         api.user.v1.UpdateUserRequest:
             type: object
             properties:
-                account:
-                    type: string
+                uid:
+                    type: integer
+                    format: int64
                 passwd:
                     type: string
                 phoneNum:

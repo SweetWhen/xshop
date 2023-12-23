@@ -16,31 +16,9 @@ import (
 	jwt2 "github.com/golang-jwt/jwt/v4"
 )
 
-func loginCheck(uc *service.UserService) middleware.Middleware {
-	keyProvider := func(t *jwt2.Token) (interface{}, error) { return []byte(uc.GetJWTSK()), nil }
-	emptyHandler := func(ctx context.Context, req interface{}) (interface{}, error) { return nil, nil }
-	return func(h middleware.Handler) middleware.Handler {
-		return func(ctx context.Context, req interface{}) (interface{}, error) {
-			resp, err := h(ctx, req)
-			if err != nil {
-				return resp, err
-			}
-			loginResp := resp.(*userpb.LoginUserResp)
-			//generate jwt
-			jwtInjector := jwt.Client(keyProvider, jwt.WithSigningMethod(jwt2.SigningMethodRS256),
-				jwt.WithClaims(func() jwt2.Claims { return &common.MyClaims{Uid: loginResp.Uid, Name: loginResp.Name} }))
-			_, e := jwtInjector(emptyHandler)(ctx, req)
-			if e != nil {
-				return nil, e
-			}
-			return resp, nil
-		}
-	}
-}
-
 func author(uc *service.UserService) middleware.Middleware {
 	keyPrivoder := func(token *jwt2.Token) (interface{}, error) {
-		return []byte(uc.GetJWTPK()), nil
+		return jwt2.ParseRSAPublicKeyFromPEM([]byte(uc.GetJWTPK()))
 	}
 	return jwt.Server(
 		keyPrivoder,
@@ -49,12 +27,33 @@ func author(uc *service.UserService) middleware.Middleware {
 	)
 }
 
+func injectJwtInfo() middleware.Middleware {
+	return func(h middleware.Handler) middleware.Handler {
+		return func(ctx context.Context, req interface{}) (interface{}, error) {
+			if t, ok := jwt.FromContext(ctx); ok {
+				c := t.(*common.MyClaims)
+				ctx = common.SetJWTClaim(ctx, c)
+			}
+			return h(ctx, req)
+		}
+	}
+}
+
 var loginPath = []string{
 	"/api.user.v1.User/LoginUser",
 }
 
+var withoutAuthPath = []string{
+	"/api.user.v1.User/GetLoginInfo",
+}
+
 func needCheckJwt(ctx context.Context, operation string) bool {
 	for _, v := range loginPath {
+		if v == operation {
+			return false
+		}
+	}
+	for _, v := range withoutAuthPath {
 		if v == operation {
 			return false
 		}
@@ -67,8 +66,7 @@ func NewHTTPServer(c *conf.Server, uc *service.UserService, logger log.Logger) *
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
-			selector.Server(loginCheck(uc)).Path(loginPath...).Build(),
-			selector.Server(author(uc)).Match(needCheckJwt).Build(),
+			selector.Server(author(uc), injectJwtInfo()).Match(needCheckJwt).Build(),
 		),
 	}
 	if c.Http.Network != "" {

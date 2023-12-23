@@ -22,7 +22,7 @@ func wireApp2(confServer *conf.Server, confData *conf.Data, logger log.Logger) (
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
-	userUsecase := biz.NewUserUsecase(userRepo, logger, confData)
+	userUsecase := biz.NewUserUsecase(confServer, userRepo, logger, confData)
 	userService := service.NewUserService(logger, userUsecase)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
 	httpSvr := server.NewHTTPServer(confServer, userService, logger)

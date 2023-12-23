@@ -6,6 +6,8 @@ server:
     addr: 0.0.0.0:9000
     timeout: 3s
   svr_name: xshop-user
+  jwt_interval: 6000s
+  
 data:
   database:
     driver: mysql
@@ -15,6 +17,9 @@ data:
     port: 3306
     host: "mysql"
     db_name: xshop
+  es_info: 
+    host: 192.168.2.133
+    port: 9200
   etcd:
     addr: 
       - "etcd:2379"
@@ -38,10 +43,3 @@ data:
     QqeCNHjRgLhQ84DNtV0CQQCghkkl6BW9pyq0YM3LqAW2fEKeJGOQATgJYrH1dgpe
     NgqTEyKchEresIYfq+XDodNZ9c3Gsn+YxIpczcWT7AHZ
     -----END RSA PRIVATE KEY-----
-
-  rsa_public: |-
-    -----BEGIN RSA PUBLIC KEY-----
-    MIGJAoGBAM5S99iUvv5zqhjlzdSPzipskOZfSkvrHJxZjHAlRq3bgVh0AYSa8gD0
-    lwV/fHB6EQRiElwOavmxpVmSDTHy3ViBGGXPSrpbrkBAIfgaGfgaJabNyMhmiXGZ
-    +VCuWGg+EcyV1pu5b3ADlYPpTNRpXsgghvxtakBEBjL9p8uC3t09AgMBAAE=
-    -----END RSA PUBLIC KEY-----

@@ -21,8 +21,9 @@ enum ErrorReason {
 	WRONG_PASSWD = 3 [(errors.code) = 400];
 }
 
-message MyCustomClaims {
-
+message ClaimPayload {
+	int64 uid = 1;
+	string name = 2;
 }
 
 service User {
@@ -34,7 +35,7 @@ service User {
 	};
 	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
 		option (google.api.http) = {
-			put: "/user/v1/users/{account}"
+			put: "/user/v1/users/{uid}"
 			body: "*"
 		};
 	};
@@ -64,6 +65,42 @@ service User {
 			body: "*"
 		};
 	};
+	rpc LogoutUser (LogoutUserReq) returns (LogoutUserResp) {
+		option (google.api.http) = {
+			post: "/user/v1/users/{account}/logout"
+			body: "*"
+		};
+	};
+	rpc SearchUser (SearchUserReq) returns (SearchUserResp) {
+		option (google.api.http) = {
+			get: "/user/v1/search/users"
+		};
+	};
+}
+
+message SearchUserReq {
+	string name_key = 1;
+	int32 count = 2;
+}
+
+message SearchUserResp {
+	message HL {
+		string feild = 1;
+		repeated string values = 2;
+	}
+	message UserInfo {
+		UserBaseInfo info = 1;
+		repeated HL hl =2;
+	}
+	repeated UserInfo users = 1;
+	int32 total = 2;
+}
+
+message LogoutUserReq {
+	string account = 1;
+}
+
+message LogoutUserResp {
 }
 
 message LoginInfoRequest {
@@ -73,6 +110,8 @@ message LoginInfoRequest {
 message LoginInfoReply {
 	//非对称加密公钥
 	string public_key = 1;
+	// 调试用，正式不应该返回私钥
+	string private_key = 2;
 }
 
 message LoginUserReq {
@@ -96,7 +135,7 @@ message CreateUserReply {
 }
 
 message UpdateUserRequest {
-	string account = 1;
+	int64 uid = 1;
 	optional string passwd = 2;
 	optional string phone_num = 3;
 	optional string name = 4;

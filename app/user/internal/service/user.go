@@ -27,7 +27,7 @@ func NewUserService(l log.Logger, ubiz *biz.UserUsecase) *UserService {
 }
 func pbUserUpdateToBizUpdate(info *userpb.UpdateUserRequest) *biz.UserUpdate {
 	return &biz.UserUpdate{
-		Account:  info.Account,
+		Uid:      info.Uid,
 		PassWD:   info.Passwd,
 		PhoneNum: info.PhoneNum,
 		Name:     info.Name,
@@ -55,6 +55,23 @@ func bizUserToPbUser(bu *biz.User) (info *userpb.UserBaseInfo) {
 	}
 }
 
+func bizHLToPb(bu *biz.User) []*userpb.SearchUserResp_HL {
+	if len(bu.Highlight) <= 0 {
+		return nil
+	}
+	r := make([]*userpb.SearchUserResp_HL, 0, len(bu.Highlight))
+
+	for k, v := range bu.Highlight {
+		hl := &userpb.SearchUserResp_HL{
+			Feild:  k,
+			Values: v,
+		}
+		r = append(r, hl)
+	}
+
+	return r
+}
+
 func (us *UserService) GetJWTSK() string {
 	return us.ubiz.GetJWTSK()
 }
@@ -64,8 +81,25 @@ func (us *UserService) GetJWTPK() string {
 }
 
 // GetLoginInfo implements v1.UserServer.
-func (*UserService) GetLoginInfo(context.Context, *userpb.LoginInfoRequest) (*userpb.LoginInfoReply, error) {
-	panic("impl me")
+func (us *UserService) GetLoginInfo(ctx context.Context, req *userpb.LoginInfoRequest) (*userpb.LoginInfoReply, error) {
+	pk, sk := us.ubiz.GetLoginInfo(ctx, req.Account)
+	return &userpb.LoginInfoReply{PublicKey: pk, PrivateKey: sk}, nil
+}
+
+// SearchUser implements v1.UserServer.
+func (us *UserService) SearchUser(ctx context.Context, req *userpb.SearchUserReq) (*userpb.SearchUserResp, error) {
+	bizUser, total, err := us.ubiz.SearchUser(ctx, req.NameKey, req.Count)
+	if err != nil {
+		return nil, err
+	}
+	resp := &userpb.SearchUserResp{Total: total}
+	for _, bu := range bizUser {
+		pbUser := bizUserToPbUser(bu)
+		hl := bizHLToPb(bu)
+		ui := &userpb.SearchUserResp_UserInfo{Info: pbUser, Hl: hl}
+		resp.Users = append(resp.Users, ui)
+	}
+	return resp, nil
 }
 
 // LoginUser implements v1.UserServer.
@@ -75,6 +109,14 @@ func (us *UserService) LoginUser(ctx context.Context, req *userpb.LoginUserReq) 
 		return nil, e
 	}
 	return &userpb.LoginUserResp{Uid: bu.Uid, Name: bu.Name}, nil
+}
+
+// LogoutUser implements v1.UserServer.
+func (us *UserService) LogoutUser(ctx context.Context, req *userpb.LogoutUserReq) (*userpb.LogoutUserResp, error) {
+
+	err := us.ubiz.LogoutUser(ctx, req.Account)
+
+	return &userpb.LogoutUserResp{}, err
 }
 
 func (us *UserService) CreateUser(c context.Context, req *userpb.CreateUserRequest) (resp *userpb.CreateUserReply, err error) {

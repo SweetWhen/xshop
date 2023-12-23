@@ -1,9 +1,12 @@
 package common
 
-import jwt2 "github.com/golang-jwt/jwt/v4"
+import (
+	userpb "realworld/api/user/v1"
+
+	jwt2 "github.com/golang-jwt/jwt/v4"
+)
 
 type MyClaims struct {
 	jwt2.RegisteredClaims
-	Uid  int64
-	Name string
+	userpb.ClaimPayload
 }

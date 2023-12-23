@@ -55,9 +55,13 @@ func (impl *RSAImpl) initKeys() (err error) {
 	impl.privateKey = string(pem.EncodeToMemory(privateKeyPEM))
 
 	publicKey := &impl.privateObj.PublicKey
+	pKey, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return err
+	}
 	publicKeyPEM := &pem.Block{
 		Type:  "RSA PUBLIC KEY",
-		Bytes: x509.MarshalPKCS1PublicKey(publicKey),
+		Bytes: pKey,
 	}
 	impl.publicKey = string(pem.EncodeToMemory(publicKeyPEM))
 	return
@@ -68,10 +72,13 @@ func (impl *RSAImpl) initObj() (err error) {
 	if impl.privateObj, err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes); err != nil {
 		return
 	}
-
+	pKey, err := x509.MarshalPKIXPublicKey(&impl.privateObj.PublicKey)
+	if err != nil {
+		return err
+	}
 	publicKeyPEM := &pem.Block{
 		Type:  "RSA PUBLIC KEY",
-		Bytes: x509.MarshalPKCS1PublicKey(&impl.privateObj.PublicKey),
+		Bytes: pKey,
 	}
 	publicKeyBuff := &bytes.Buffer{}
 	pem.Encode(publicKeyBuff, publicKeyPEM)

@@ -25,6 +25,8 @@ const OperationUserGetLoginInfo = "/api.user.v1.User/GetLoginInfo"
 const OperationUserGetUser = "/api.user.v1.User/GetUser"
 const OperationUserListUser = "/api.user.v1.User/ListUser"
 const OperationUserLoginUser = "/api.user.v1.User/LoginUser"
+const OperationUserLogoutUser = "/api.user.v1.User/LogoutUser"
+const OperationUserSearchUser = "/api.user.v1.User/SearchUser"
 const OperationUserUpdateUser = "/api.user.v1.User/UpdateUser"
 
 type UserHTTPServer interface {
@@ -34,18 +36,22 @@ type UserHTTPServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
 	ListUser(context.Context, *ListUserRequest) (*ListUserReply, error)
 	LoginUser(context.Context, *LoginUserReq) (*LoginUserResp, error)
+	LogoutUser(context.Context, *LogoutUserReq) (*LogoutUserResp, error)
+	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserReply, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.POST("/user/v1/users", _User_CreateUser0_HTTP_Handler(srv))
-	r.PUT("/user/v1/users/{account}", _User_UpdateUser0_HTTP_Handler(srv))
+	r.PUT("/user/v1/users/{uid}", _User_UpdateUser0_HTTP_Handler(srv))
 	r.DELETE("/user/v1/users/{account}", _User_DeleteUser0_HTTP_Handler(srv))
 	r.GET("/user/v1/users/{account}", _User_GetUser0_HTTP_Handler(srv))
 	r.GET("/user/v1/users", _User_ListUser0_HTTP_Handler(srv))
 	r.GET("/user/v1/users/{account}/login/info", _User_GetLoginInfo0_HTTP_Handler(srv))
 	r.POST("/user/v1/users/login", _User_LoginUser0_HTTP_Handler(srv))
+	r.POST("/user/v1/users/{account}/logout", _User_LogoutUser0_HTTP_Handler(srv))
+	r.GET("/user/v1/search/users", _User_SearchUser0_HTTP_Handler(srv))
 }
 
 func _User_CreateUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -193,6 +199,47 @@ func _User_LoginUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) er
 	}
 }
 
+func _User_LogoutUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LogoutUserReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserLogoutUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.LogoutUser(ctx, req.(*LogoutUserReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LogoutUserResp)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_SearchUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SearchUserReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserSearchUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SearchUser(ctx, req.(*SearchUserReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SearchUserResp)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
 	CreateUser(ctx context.Context, req *CreateUserRequest, opts ...http.CallOption) (rsp *CreateUserReply, err error)
 	DeleteUser(ctx context.Context, req *DeleteUserRequest, opts ...http.CallOption) (rsp *DeleteUserReply, err error)
@@ -200,6 +247,8 @@ type UserHTTPClient interface {
 	GetUser(ctx context.Context, req *GetUserRequest, opts ...http.CallOption) (rsp *GetUserReply, err error)
 	ListUser(ctx context.Context, req *ListUserRequest, opts ...http.CallOption) (rsp *ListUserReply, err error)
 	LoginUser(ctx context.Context, req *LoginUserReq, opts ...http.CallOption) (rsp *LoginUserResp, err error)
+	LogoutUser(ctx context.Context, req *LogoutUserReq, opts ...http.CallOption) (rsp *LogoutUserResp, err error)
+	SearchUser(ctx context.Context, req *SearchUserReq, opts ...http.CallOption) (rsp *SearchUserResp, err error)
 	UpdateUser(ctx context.Context, req *UpdateUserRequest, opts ...http.CallOption) (rsp *UpdateUserReply, err error)
 }
 
@@ -289,9 +338,35 @@ func (c *UserHTTPClientImpl) LoginUser(ctx context.Context, in *LoginUserReq, op
 	return &out, err
 }
 
+func (c *UserHTTPClientImpl) LogoutUser(ctx context.Context, in *LogoutUserReq, opts ...http.CallOption) (*LogoutUserResp, error) {
+	var out LogoutUserResp
+	pattern := "/user/v1/users/{account}/logout"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserLogoutUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) SearchUser(ctx context.Context, in *SearchUserReq, opts ...http.CallOption) (*SearchUserResp, error) {
+	var out SearchUserResp
+	pattern := "/user/v1/search/users"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationUserSearchUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *UserHTTPClientImpl) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...http.CallOption) (*UpdateUserReply, error) {
 	var out UpdateUserReply
-	pattern := "/user/v1/users/{account}"
+	pattern := "/user/v1/users/{uid}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserUpdateUser))
 	opts = append(opts, http.PathTemplate(pattern))
