@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package api.mgr.v1;
+import "errors/errors.proto";
+import "google/api/annotations.proto";
+
+option go_package = "realworld/api/mgr/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.mgr.v1";
+
+enum ErrorReason {
+	option (errors.default_code) = 500;
+
+	// 用户已经存在
+	USERSVR_BAD_RESP = 0 [(errors.code) = 403];
+
+	// 入参错误
+	ERR_INVALID_PARAM = 1 [(errors.code) = 400];
+}
+
+service User {
+	rpc Heartbeat (HeartbeatRequest) returns (HeartbeatReply) {
+		option (google.api.http) = {
+			get: "/mgr/v1/heartbeat"
+		};
+	}
+
+	rpc LoginUser (LoginUserRequest) returns (LoginUserReply) {
+		option (google.api.http) = {
+			post: "/mgr/v1/login"
+			body: "*"
+		};
+	}
+
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply) {
+		option (google.api.http) = {
+			post: "/mgr/v1/users"
+			body: "*"
+		};
+	}
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
+		option (google.api.http) = {
+			put: "/mgr/v1/users/{info.account}"
+			body: "*"
+		};
+	}
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply) {
+		option (google.api.http) = {
+			delete: "/mgr/v1/users/{account}"
+		};
+	}
+	rpc GetUser (GetUserRequest) returns (GetUserReply) {
+		option (google.api.http) = {
+			get: "/mgr/v1/users/{account}"
+		};
+	}
+	rpc ListUser (ListUserRequest) returns (ListUserReply) {
+		option (google.api.http) = {
+			get: "/mgr/v1/users"
+		};
+	}
+}
+
+message LoginUserRequest {
+	string account = 1;
+	string passwd = 2;
+}
+
+message HeartbeatRequest {
+	
+}
+
+message HeartbeatReply {
+	string msg = 1;
+}
+
+message LoginUserReply {
+	int64 uid = 1;
+	string name = 2;
+}
+
+message UserBaseInfo {
+	int64 uid = 1;
+	string account = 2;
+	string passwd = 3;
+	string phone_num = 4;
+	string name = 5;
+	UserStatus status = 6; 
+}
+
+message CreateUserRequest {
+	UserBaseInfo info = 1;
+}
+
+message CreateUserReply {
+	UserBaseInfo info = 1;
+}
+
+message UpdateUserRequest {
+	UserBaseInfo info = 1;
+}
+message UpdateUserReply {}
+
+message DeleteUserRequest {
+	string account = 1;
+}
+message DeleteUserReply {
+
+}
+
+message GetUserRequest {
+	string account = 1;
+}
+message GetUserReply {
+	UserBaseInfo info = 1;
+}
+
+message ListUserRequest {
+	int64 start_id = 1;
+	int64 count = 2;
+	// 0 : all status will return 
+	UserStatus status = 3; 
+}
+message ListUserReply {
+	UserBaseInfo users = 1;
+	int64 next_start_id = 2;
+}
+
+enum UserStatus {
+	NONE = 0;
+	NOT_ACTIVE = 1;
+	ACTIVE = 2;
+	RESIGN = 3; 
+}
+

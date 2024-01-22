@@ -1,0 +1,93 @@
+resources:
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: biz_mgr
+  alt_stat_name: biz_mgr
+  per_connection_buffer_limit_bytes: 2097152
+  connect_timeout: 3s
+  type: STRICT_DNS
+  dns_lookup_family: V4_ONLY
+  lb_policy: ROUND_ROBIN
+  circuit_breakers:
+      thresholds:
+       - max_connections: 102400
+         max_retries:  102400
+         max_requests: 102400
+         max_pending_requests: 102400
+  load_assignment:
+    cluster_name: biz_mgr
+    endpoints:
+    - lb_endpoints:
+      - endpoint:
+          address:
+            socket_address:
+              address: xshop-mgr
+              port_value: 8001
+  health_checks:
+    - timeout: 2s
+      interval: 5s
+      unhealthy_threshold: 3
+      healthy_threshold: 1
+      tcp_health_check:
+        "@type": type.googleapis.com/envoy.config.core.v3.HealthCheck.HttpHealthCheck
+        host: xshop-mgr
+        path: /mgr/v1/heartbeat
+        expected_statuses:
+          - 200
+      always_log_health_check_failures: true
+
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: biz_user
+  alt_stat_name: biz_user
+  per_connection_buffer_limit_bytes: 2097152
+  connect_timeout: 3s
+  type: STRICT_DNS
+  dns_lookup_family: V4_ONLY
+  lb_policy: ROUND_ROBIN                                                                 
+  circuit_breakers:                                                                      
+      thresholds:                                                                        
+       - max_connections: 102400                                                         
+         max_retries:  102400                                                            
+         max_requests: 102400                                                            
+         max_pending_requests: 102400                                                    
+  typed_extension_protocol_options:                                                      
+    envoy.extensions.upstreams.http.v3.HttpProtocolOptions:                              
+      "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+      common_http_protocol_options:                                                      
+          idle_timeout: 3600s                                                            
+          max_requests_per_connection: 1024000                                              
+          headers_with_underscores_action: REJECT_REQUEST                                
+      use_downstream_protocol_config: {}                                                 
+  load_assignment:                                                                       
+    cluster_name: biz_user                                                                
+    endpoints:                                                                           
+    - lb_endpoints:                                                                      
+      - endpoint:                                                                        
+          address:                                                                       
+            socket_address:                                                              
+              address: xshop-user                                                       
+              port_value: 8000                                                             
+
+
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: biz_user_grpc
+  alt_stat_name: biz_user_grpc
+  per_connection_buffer_limit_bytes: 2097152
+  connect_timeout: 3s
+  type: STRICT_DNS
+  dns_lookup_family: V4_ONLY
+  lb_policy: ROUND_ROBIN                                                                 
+  typed_extension_protocol_options:
+    envoy.extensions.upstreams.http.v3.HttpProtocolOptions:                              
+      "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+      explicit_http_config: 
+        http2_protocol_options: {}
+  load_assignment:
+    cluster_name: biz_user_grpc                                                                
+    endpoints:                                                                           
+    - lb_endpoints:                                                                      
+      - endpoint:                                                                        
+          address:                                                                       
+            socket_address:                                                              
+              address: xshop-user                                                       
+              port_value: 9000                                                             
+

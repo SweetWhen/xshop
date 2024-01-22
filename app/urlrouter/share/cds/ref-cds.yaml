@@ -1,0 +1,63 @@
+resources:
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: mgr
+  alt_stat_name: xshop_mgr
+  per_connection_buffer_limit_bytes: 2097152
+  connect_timeout: 3s
+  type: STRICT_DNS
+  dns_lookup_family: V4_ONLY
+  lb_policy: ROUND_ROBIN
+  circuit_breakers:
+      thresholds:
+       - max_connections: 102400
+         max_retries:  102400
+         max_requests: 102400
+         max_pending_requests: 102400
+  typed_extension_protocol_options:
+    envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+      "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+      common_http_protocol_options:
+          idle_timeout: 3600s
+          max_requests_per_connection: 1024
+          headers_with_underscores_action: REJECT_REQUEST
+      use_downstream_protocol_config: {}
+  load_assignment:
+    cluster_name: mgr
+    endpoints:
+    - lb_endpoints:
+      - endpoint:
+          address:
+            socket_address:
+              address: xshop-mgr
+              port_value: 80
+- "@type": type.googleapis.com/envoy.config.cluster.v3.Cluster
+  name: user
+  alt_stat_name: xshop_user
+  per_connection_buffer_limit_bytes: 2097152
+  connect_timeout: 3s
+  type: STRICT_DNS
+  dns_lookup_family: V4_ONLY
+  lb_policy: ROUND_ROBIN                                                                 
+  circuit_breakers:                                                                      
+      thresholds:                                                                        
+       - max_connections: 102400                                                         
+         max_retries:  102400                                                            
+         max_requests: 102400                                                            
+         max_pending_requests: 102400                                                    
+  typed_extension_protocol_options:                                                      
+    envoy.extensions.upstreams.http.v3.HttpProtocolOptions:                              
+      "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+      common_http_protocol_options:                                                      
+          idle_timeout: 3600s                                                            
+          max_requests_per_connection: 1024                                              
+          headers_with_underscores_action: REJECT_REQUEST                                
+      use_downstream_protocol_config: {}                                                 
+  load_assignment:                                                                       
+    cluster_name: user                                                                
+    endpoints:                                                                           
+    - lb_endpoints:                                                                      
+      - endpoint:                                                                        
+          address:                                                                       
+            socket_address:                                                              
+              address: woa-publish                                                       
+              port_value: 80                                                             

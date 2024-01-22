@@ -1,0 +1,327 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: User API
+    version: 0.0.1
+paths:
+    /user/v1/search/users:
+        get:
+            tags:
+                - User
+            operationId: User_SearchUser
+            parameters:
+                - name: nameKey
+                  in: query
+                  schema:
+                    type: string
+                - name: count
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.SearchUserResp'
+    /user/v1/users:
+        get:
+            tags:
+                - User
+            operationId: User_ListUser
+            parameters:
+                - name: startId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: count
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: status
+                  in: query
+                  description: '0 : all status will return'
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.ListUserReply'
+        post:
+            tags:
+                - User
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.CreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.CreateUserReply'
+    /user/v1/users/login:
+        post:
+            tags:
+                - User
+            operationId: User_LoginUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.LoginUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.LoginUserResp'
+    /user/v1/users/{account}:
+        get:
+            tags:
+                - User
+            operationId: User_GetUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.GetUserReply'
+        delete:
+            tags:
+                - User
+            operationId: User_DeleteUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: hard
+                  in: query
+                  description: 'hard: 1-删除记录；0-只是标准状态为noactive'
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.DeleteUserReply'
+    /user/v1/users/{account}/login/info:
+        get:
+            tags:
+                - User
+            operationId: User_GetLoginInfo
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.LoginInfoReply'
+    /user/v1/users/{account}/logout:
+        post:
+            tags:
+                - User
+            operationId: User_LogoutUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.LogoutUserReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.LogoutUserResp'
+    /user/v1/users/{uid}:
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            parameters:
+                - name: uid
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UpdateUserReply'
+components:
+    schemas:
+        api.user.v1.CreateUserReply:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+        api.user.v1.CreateUserRequest:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+        api.user.v1.DeleteUserReply:
+            type: object
+            properties: {}
+        api.user.v1.GetUserReply:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+        api.user.v1.ListUserReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+                nextStartId:
+                    type: integer
+                    format: int64
+        api.user.v1.LoginInfoReply:
+            type: object
+            properties:
+                publicKey:
+                    type: string
+                    description: 非对称加密公钥
+                privateKey:
+                    type: string
+                    description: 调试用，正式不应该返回私钥
+        api.user.v1.LoginUserReq:
+            type: object
+            properties:
+                account:
+                    type: string
+                passwd:
+                    type: string
+                    description: 非对称加密之后的密码
+        api.user.v1.LoginUserResp:
+            type: object
+            properties:
+                uid:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+        api.user.v1.LogoutUserReq:
+            type: object
+            properties:
+                account:
+                    type: string
+        api.user.v1.LogoutUserResp:
+            type: object
+            properties: {}
+        api.user.v1.SearchUserResp:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.SearchUserResp_UserInfo'
+                total:
+                    type: integer
+                    format: int32
+        api.user.v1.SearchUserResp_HL:
+            type: object
+            properties:
+                feild:
+                    type: string
+                values:
+                    type: array
+                    items:
+                        type: string
+        api.user.v1.SearchUserResp_UserInfo:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.user.v1.UserBaseInfo'
+                hl:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.SearchUserResp_HL'
+        api.user.v1.UpdateUserReply:
+            type: object
+            properties: {}
+        api.user.v1.UpdateUserRequest:
+            type: object
+            properties:
+                uid:
+                    type: integer
+                    format: int64
+                passwd:
+                    type: string
+                phoneNum:
+                    type: string
+                name:
+                    type: string
+        api.user.v1.UserBaseInfo:
+            type: object
+            properties:
+                uid:
+                    type: integer
+                    format: int64
+                account:
+                    type: string
+                passwd:
+                    type: string
+                phoneNum:
+                    type: string
+                name:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+tags:
+    - name: User

@@ -1,0 +1,213 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: User API
+    version: 0.0.1
+paths:
+    /mgr/v1/heartbeat:
+        get:
+            tags:
+                - User
+            operationId: User_Heartbeat
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.HeartbeatReply'
+    /mgr/v1/login:
+        post:
+            tags:
+                - User
+            operationId: User_LoginUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.mgr.v1.LoginUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.LoginUserReply'
+    /mgr/v1/users:
+        get:
+            tags:
+                - User
+            operationId: User_ListUser
+            parameters:
+                - name: startId
+                  in: query
+                  schema:
+                    type: string
+                - name: count
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  description: '0 : all status will return'
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.ListUserReply'
+        post:
+            tags:
+                - User
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.mgr.v1.CreateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.CreateUserReply'
+    /mgr/v1/users/{account}:
+        get:
+            tags:
+                - User
+            operationId: User_GetUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.GetUserReply'
+        delete:
+            tags:
+                - User
+            operationId: User_DeleteUser
+            parameters:
+                - name: account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.DeleteUserReply'
+    /mgr/v1/users/{info.account}:
+        put:
+            tags:
+                - User
+            operationId: User_UpdateUser
+            parameters:
+                - name: info.account
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.mgr.v1.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.mgr.v1.UpdateUserReply'
+components:
+    schemas:
+        api.mgr.v1.CreateUserReply:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+        api.mgr.v1.CreateUserRequest:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+        api.mgr.v1.DeleteUserReply:
+            type: object
+            properties: {}
+        api.mgr.v1.GetUserReply:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+        api.mgr.v1.HeartbeatReply:
+            type: object
+            properties:
+                msg:
+                    type: string
+        api.mgr.v1.ListUserReply:
+            type: object
+            properties:
+                users:
+                    $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+                nextStartId:
+                    type: string
+        api.mgr.v1.LoginUserReply:
+            type: object
+            properties:
+                uid:
+                    type: string
+                name:
+                    type: string
+        api.mgr.v1.LoginUserRequest:
+            type: object
+            properties:
+                account:
+                    type: string
+                passwd:
+                    type: string
+        api.mgr.v1.UpdateUserReply:
+            type: object
+            properties: {}
+        api.mgr.v1.UpdateUserRequest:
+            type: object
+            properties:
+                info:
+                    $ref: '#/components/schemas/api.mgr.v1.UserBaseInfo'
+        api.mgr.v1.UserBaseInfo:
+            type: object
+            properties:
+                uid:
+                    type: string
+                account:
+                    type: string
+                passwd:
+                    type: string
+                phoneNum:
+                    type: string
+                name:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+tags:
+    - name: User

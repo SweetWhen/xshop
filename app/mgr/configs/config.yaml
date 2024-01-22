@@ -1,0 +1,22 @@
+server:
+  http:
+    addr: 0.0.0.0:8001
+    timeout: 3s
+  grpc:
+    addr: 0.0.0.0:9001
+    timeout: 3s
+data:
+  database:
+    driver: mysql
+    user: sweet
+    # passwd: dagerous
+    passwd: sweet
+    port: 3306
+    host: "mysql"
+    db_name: xshop
+  etcd:
+    addr: 
+      - "etcd:2379"
+user_svc:
+  svc_name: xshop-user
+
