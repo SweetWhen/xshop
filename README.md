@@ -1,11 +1,14 @@
-# 用户系统管理后台
-有账号才有其他业务体系，先搞个账号服务，后续再加入其他业务，如IM、电商等
-
+# xshop
+ 一个练手的电商服务、IM服务。
 * 基于kratos，etcd服务注册与发现，openapi, otel链路追踪，入参validata, gorm；
 * envoy网关, idgen, 定时任务；
 * 基于Open Policy Agent的rbac权限体系；
 * es搜索；
 * DDD
+
+整体架构如下
+![jiagou](./doc/img/xshop架构.png)
+
 
 ## quick start
 
