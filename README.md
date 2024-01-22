@@ -12,6 +12,8 @@
 
 ## quick start
 
+> 目前仅支持用户增删查改、登录、搜索用户名（高亮）
+
 ### Docker
 ```bash
 # build
