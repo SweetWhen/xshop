@@ -1,13 +1,14 @@
 # xshop
- 一个练手的电商服务、IM服务。
+ 一个练手的账号体系。
 * 基于kratos，etcd服务注册与发现，openapi, otel链路追踪，入参validata, gorm；
+* jwt/casbin账号认证与权限管理；
 * envoy网关, idgen, 定时任务；
-* 基于Open Policy Agent的rbac权限体系；
 * es搜索；
 * DDD
+* IM、shopping...
 
 整体架构如下
-![jiagou](./doc/img/xshop架构.png)
+![jiagou](./doc/img/xshop架构2.png)
 
 
 ## quick start
